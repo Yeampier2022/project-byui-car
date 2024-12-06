@@ -1,38 +1,68 @@
-const mongodb = require("../database/database");
-const ObjectId = require("mongodb").ObjectId;
+const carModel = require("../models/carModel");
 
 const getCars = async (req, res) => {
   try {
-    const db = mongodb.getDb();
-    const cars = await db.collection("cars").find().toArray();
-    res.json(cars);
+    const cars = await carModel.getCars();
+    res.status(200).json(cars);
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error(error);
+    res.status(500).json({ message: "Failed to fetch cars" });
   }
 };
 
-const getCarId = async (req, res) => {
-  if (!ObjectId.isValid(req.params.id)) {
-    res.status(400).json({ error: "must use valid id employees" });
-    return;
-  }
-  const id = new ObjectId(req.params.id);
-  const result = await mongodb
-    .getDb()
-    .client.db()
-    .collection("cars")
-    .find({ _id: id });
-  result.toArray().then((cars) => {
-    if (cars.error) {
-      res.status(400).json(cars.error);
+const getCarById = async (req, res) => {
+  try {
+    const car = await carModel.getCarById(req.params.id);
+    if (!car) {
+      return res.status(404).json({ message: "Car not found" });
     }
-    res.setHeader("Content-Type", "application/json");
-    res.status(200).json(cars[0]);
-  });
+    res.status(200).json(car);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+const createCar = async (req, res) => {
+  try {
+    const carId = await carModel.createCar(req.body);
+    res.status(201).json({ message: "Car created", carId });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to create car" });
+  }
+};
+
+const updateCarById = async (req, res) => {
+  try {
+    const success = await carModel.updateCarById(req.params.id, req.body);
+    if (!success) {
+      return res.status(404).json({ message: "Car not found" });
+    }
+    res.status(200).json({ message: "Car updated" });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+const deleteCarById = async (req, res) => {
+  try {
+    const success = await carModel.deleteCarById(req.params.id);
+    if (!success) {
+      return res.status(404).json({ message: "Car not found" });
+    }
+    res.status(200).json({ message: "Car deleted" });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: error.message });
+  }
 };
 
 module.exports = {
   getCars,
-  getCarId,
+  getCarById,
+  createCar,
+  updateCarById,
+  deleteCarById,
 };
