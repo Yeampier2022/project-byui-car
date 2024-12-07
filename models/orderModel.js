@@ -35,6 +35,20 @@ const validateOrderData = (orderData) => {
 
 // CRUD operations
 
+
+const getOrders = async () => {
+  const db = mongodb.getDb();
+  return db.collection(ordersCollection).find().toArray();
+}
+
+const getOrderById = async (orderId) => {
+  const db = mongodb.getDb();
+if (!ObjectId.isValid(orderId)) {
+    throw new Error("Invalid ID format");
+  }
+  return db.collection(ordersCollection).findOne({ _id: new ObjectId(orderId) });
+};
+
 const createOrder = async (orderData) => {
   validateOrderData(orderData);
   const db = mongodb.getDb();
@@ -43,6 +57,29 @@ const createOrder = async (orderData) => {
   return result.insertedId;
 };
 
+const updateOrderById = async (orderId, orderData) => {
+  if(!ObjectId.isValid(orderId)) {
+    throw new Error("Invalid ID format");
+  }
+  validateOrderData(orderData);
+  const db = mongodb.getDb();
+  const result = await db.collection(ordersCollection).updateOne({ _id: new ObjectId(orderId) }, { $set: orderData });
+  return result.modifiedCount > 0;
+};
+
+const deleteOrderById = async (orderId) => {
+  const db = mongodb.getDb();
+  if (!ObjectId.isValid(orderId)) {
+    throw new Error("Invalid ID format");
+  }
+  const result = await db.collection(ordersCollection).deleteOne({ _id: new ObjectId(orderId) });
+  return result.deletedCount > 0;
+}
+
 module.exports = {
   createOrder,
+  getOrders,
+  getOrderById,
+  updateOrderById,
+  deleteOrderById,
 };

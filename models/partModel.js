@@ -40,6 +40,19 @@ const validate = (sparePartData) => {
 
 // CRUD operations
 
+
+const getSquardParts = async () => {
+  const db = mongodb.getDb();
+  return db.collection(collectionName).find().toArray();
+}
+
+const getSquardPartById = async (partId) => {
+  const db = mongodb.getDb();
+  if (!ObjectId.isValid(partId)) {
+    throw new Error("Invalid ID format");
+  }
+  return db.collection(collectionName).findOne({ _id: new ObjectId(partId) });
+}
 const createSparePart = async (sparePartData) => {
   validate(sparePartData);
   const db = mongodb.getDb();
@@ -47,6 +60,30 @@ const createSparePart = async (sparePartData) => {
   return result.insertedId;
 };
 
+const updateSquardPartById = async (partId, sparePartData) => {
+  validate(sparePartData);
+  const db = mongodb.getDb();
+  const result = await db.collection(collectionName).updateOne(
+    { _id: ObjectId(partId) },
+    { $set: sparePartData }
+  );
+  return result.matchedCount > 0;
+};
+
+const deleteSquardPartById = async (partId) => {
+  const db = mongodb.getDb();
+  if (!ObjectId.isValid(partId)) {
+    throw new Error("Invalid ID format");
+  }
+  const result = await db.collection(collectionName).deleteOne({ _id: new ObjectId(partId) });
+  return result.deletedCount > 0;
+};
+
+
 module.exports = {
+  getSquardParts,
+  getSquardPartById,
   createSparePart,
+  updateSquardPartById,
+  deleteSquardPartById
 };

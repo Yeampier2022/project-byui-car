@@ -6,8 +6,8 @@ const routes = require("express").Router();
 
 routes.use("/users", require("./users"));
 routes.use("/cars", require("./cars"));
-//routes.use("/orders", require("./orders"));
-//routes.use("/squard-part", require("./squardPart"));
+routes.use("/orders", require("./orders"));
+routes.use("/squard-part", require("./squardPart"));
 
 // Example home route
 routes.get("/", (req, res) => {
