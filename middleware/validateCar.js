@@ -56,7 +56,7 @@ const carValidation = [
   body('ownerId')
     .custom(async (ownerId, { req }) => {
       // Retrieve the owner ID from the session
-      const sessionOwnerId = req.session?.user?.id;
+      const sessionOwnerId = req.session.user._id;
       if (!sessionOwnerId) {
         const error = new Error('User not authenticated.');
         error.statusCode = 401;
