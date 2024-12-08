@@ -1,61 +1,62 @@
 const userModel = require("../models/userModel");
 
-const getUsers = async (req, res) => {
+const getUsers = async (req, res, next) => {
   try {
     const users = await userModel.getUsers();
     res.status(200).json(users);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Failed to fetch users" });
+    next(error);  // Pass error to the global error handler
   }
 };
 
-const getUserById = async (req, res) => {
+const getUserById = async (req, res, next) => {
   try {
     const user = await userModel.getUserById(req.params.id);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      const error = new Error("User not found");
+      error.status = 404;
+      return next(error);  // Pass error to the global error handler
     }
     res.status(200).json(user);
   } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: error.message });
+    next(error);  // Pass error to the global error handler
   }
 };
 
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
   try {
     const userId = await userModel.createUser(req.body);
     res.status(201).json({ message: "User created", userId });
   } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: error.message });
+    next(error);  // Pass error to the global error handler
   }
 };
 
-const updateUserById = async (req, res) => {
+const updateUserById = async (req, res, next) => {
   try {
     const success = await userModel.updateUserById(req.params.id, req.body);
     if (!success) {
-      return res.status(404).json({ message: "User not found" });
+      const error = new Error("User not found");
+      error.status = 404;
+      return next(error);  // Pass error to the global error handler
     }
     res.status(200).json({ message: "User updated" });
   } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: error.message });
+    next(error);  // Pass error to the global error handler
   }
 };
 
-const deleteUserById = async (req, res) => {
+const deleteUserById = async (req, res, next) => {
   try {
     const success = await userModel.deleteUserById(req.params.id);
     if (!success) {
-      return res.status(404).json({ message: "User not found" });
+      const error = new Error("User not found");
+      error.status = 404;
+      return next(error);  // Pass error to the global error handler
     }
     res.status(200).json({ message: "User deleted" });
   } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: error.message });
+    next(error);  // Pass error to the global error handler
   }
 };
 

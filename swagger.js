@@ -5,8 +5,8 @@ const doc = {
     title: 'API Documentation',
     description: 'API Documentation for the REST API',
   },
-  host: 'localhost:3000',
-  schemes: ['https', 'http'],
+  host: 'project-byui-car.onrender.com',
+  schemes: ['https'],
 };
 const outputFile = './swagger.json';
 const endpointsFiles = ['./routes/index.js'];

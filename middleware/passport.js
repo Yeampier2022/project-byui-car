@@ -1,5 +1,6 @@
 const GitHubStrategy = require("passport-github2").Strategy;
 const { findOrCreateUserInDatabase } = require("../middleware/utilities");
+const userModel = require("../models/userModel");
 
 module.exports = function (passport) {
   passport.use(
@@ -26,6 +27,9 @@ module.exports = function (passport) {
     )
   );
 
-  passport.serializeUser((user, done) => done(null, user));
-  passport.deserializeUser((user, done) => done(null, user));
+  passport.serializeUser((user, done) => done(null, user._id));
+  passport.deserializeUser(async (id, done) => {
+    const user = await userModel.getUserById(id); // Fetch user by ID
+    done(null, user);
+  });
 };

@@ -13,10 +13,10 @@ const userSchema = {
   required: ["name", "role"],
   properties: {
     name: { type: "string", minLength: 1 },
-    email: { type: "string", format: "email", nullable: true }, // GitHub might not provide an email
+    email: { type: "string", format: "email", nullable: true },
     role: { type: "string", enum: ["client", "admin", "employee"] },
-    githubId: { type: "string", pattern: "^[0-9]+$" }, // GitHub user ID (numeric)
-    avatarUrl: { type: "string", format: "uri", nullable: true }, // Store GitHub avatar URL
+    githubId: { type: "string", pattern: "^[0-9]+$" },
+    avatarUrl: { type: "string", format: "uri", nullable: true },
     registeredDate: { type: "string", format: "date-time" },
   },
   additionalProperties: false,
@@ -31,8 +31,12 @@ const collectionName = "users";
 const validate = (userData) => {
   const valid = validateUser(userData);
   if (!valid) {
-    const errors = validateUser.errors.map((err) => `${err.instancePath} ${err.message}`).join(", ");
-    throw new Error(`Validation failed: ${errors}`);
+    const errors = validateUser.errors
+      .map((err) => `${err.instancePath} ${err.message}`)
+      .join(", ");
+    const error = new Error(`Validation failed: ${errors}`);
+    error.status = 422; // Unprocessable Entity
+    throw error;
   }
 };
 
@@ -45,7 +49,9 @@ const getUsers = async () => {
 const getUserById = async (id) => {
   const db = mongodb.getDb();
   if (!ObjectId.isValid(id)) {
-    throw new Error("Invalid ID format");
+    const error = new Error("Invalid ID format");
+    error.status = 400; // Bad Request
+    throw error;
   }
   return db.collection(collectionName).findOne({ _id: new ObjectId(id) });
 };
@@ -58,19 +64,26 @@ const getByGithubId = async (id) => {
 const createUser = async (userData) => {
   validate(userData); // Validate data before insertion
   if (!userData.role) {
-    userData.role = "client"
+    userData.role = "client";
   }
   if (!userData.registeredDate) {
     userData.registeredDate = new Date().toISOString(); // Add registered date
   }
   const db = mongodb.getDb();
   const result = await db.collection(collectionName).insertOne(userData);
-  return result;
+  if (!result.acknowledged) {
+    const error = new Error("Failed to create user");
+    error.status = 500;
+    throw error;
+  }
+  return result.insertedId;
 };
 
 const updateUserById = async (id, userData) => {
   if (!ObjectId.isValid(id)) {
-    throw new Error("Invalid ID format");
+    const error = new Error("Invalid ID format");
+    error.status = 400; // Bad Request
+    throw error;
   }
   validate(userData); // Validate data before update
   const db = mongodb.getDb();
@@ -78,15 +91,27 @@ const updateUserById = async (id, userData) => {
     { _id: new ObjectId(id) },
     { $set: userData }
   );
+  if (result.matchedCount === 0) {
+    const error = new Error("User not found");
+    error.status = 404; // Not Found
+    throw error;
+  }
   return result.modifiedCount > 0;
 };
 
 const deleteUserById = async (id) => {
   const db = mongodb.getDb();
   if (!ObjectId.isValid(id)) {
-    throw new Error("Invalid ID format");
+    const error = new Error("Invalid ID format");
+    error.status = 400; // Bad Request
+    throw error;
   }
   const result = await db.collection(collectionName).deleteOne({ _id: new ObjectId(id) });
+  if (result.deletedCount === 0) {
+    const error = new Error("User not found");
+    error.status = 404; // Not Found
+    throw error;
+  }
   return result.deletedCount > 0;
 };
 

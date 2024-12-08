@@ -7,7 +7,8 @@ const routes = require("express").Router();
 routes.use("/users", require("./users"));
 routes.use("/cars", require("./cars"));
 routes.use("/orders", require("./orders"));
-routes.use("/squard-part", require("./squardPart"));
+routes.use("/spare-parts", require("./squardPart"));
+routes.use("/api-docs", require("./swagger"))
 
 // Example home route
 routes.get("/", (req, res) => {
@@ -15,7 +16,8 @@ routes.get("/", (req, res) => {
     res.json({
       isAuthenticated: true,
       user: {
-        id: req.session.user.githubId,
+        id: req.session.user._id,
+        githubId: req.session.user.githubId,
         name: req.session.user.displayName,
         avatar: req.session.user.avatarUrl,
       },
@@ -29,16 +31,20 @@ routes.use("/protected-route", utilities.isAuthenticated, (req, res) => {
   res.send("This is a protected route.");
 });
 
+routes.use("/login-failed", (req, res) => {
+  res.send("Login failed.");
+});
+
+
 // GitHub OAuth callback route
 routes.get("/github/callback", passport.authenticate("github", {
   failureRedirect: "/login-failed",
-  session: true, // Use persistent sessions
+  session: true, // Ensure session is being used here
 }),
-  (req, res) => {
-    req.session.user = req.user; // Store user in session
-    res.redirect("/"); // Redirect to the home page or dashboard
-  }
-);
+(req, res) => {
+  req.session.user = req.user; // Store the user object in session
+  res.redirect("/");
+});
 
 routes.get("/login", passport.authenticate("github"), (req, res) => {});
 
@@ -51,7 +57,7 @@ routes.get("/logout", (req, res) => {
       if (destroyErr) {
         console.error("Error destroying session:", destroyErr);
       }
-      res.redirect("/");
+      res.redirect("/"); // Redirect after logout
     });
   });
 });

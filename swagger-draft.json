@@ -1,0 +1,590 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "REST API Documentation",
+    "description": "API for managing users, cars, orders, and other resources for a web application.",
+    "version": "1.0.0"
+  },
+  "host": "localhost:3000",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/users/": {
+      "get": {
+        "description": "Retrieve a list of all users.",
+        "responses": {
+          "200": {
+            "description": "A list of users.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "description": "Retrieve details of a user by their ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the user to retrieve."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details.",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Invalid user ID provided."
+          },
+          "404": {
+            "description": "User not found."
+          }
+        }
+      },
+      "put": {
+        "description": "Update an existing user's details.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the user to update."
+          },
+          {
+            "in": "body",
+            "name": "user",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User updated successfully."
+          },
+          "400": {
+            "description": "Invalid input data."
+          },
+          "404": {
+            "description": "User not found."
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete a user by their ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the user to delete."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deleted successfully."
+          },
+          "404": {
+            "description": "User not found."
+          }
+        }
+      }
+    },
+    "/cars/": {
+      "get": {
+        "description": "Retrieve a list of all cars.",
+        "responses": {
+          "200": {
+            "description": "A list of cars.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Car"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new car.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "car",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Car"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Car created successfully."
+          },
+          "400": {
+            "description": "Invalid input data."
+          }
+        }
+      }
+    },
+    "/cars/{id}": {
+      "get": {
+        "description": "Retrieve details of a car by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the car to retrieve."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Car details.",
+            "schema": {
+              "$ref": "#/definitions/Car"
+            }
+          },
+          "404": {
+            "description": "Car not found."
+          }
+        }
+      },
+      "put": {
+        "description": "Update an existing car's details.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the car to update."
+          },
+          {
+            "in": "body",
+            "name": "car",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Car"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Car updated successfully."
+          },
+          "400": {
+            "description": "Invalid input data."
+          },
+          "404": {
+            "description": "Car not found."
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete a car by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the car to delete."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Car deleted successfully."
+          },
+          "404": {
+            "description": "Car not found."
+          }
+        }
+      }
+    },
+    "/orders/": {
+      "get": {
+        "description": "Retrieve a list of all orders.",
+        "responses": {
+          "200": {
+            "description": "A list of orders.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Order"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new order.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "order",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Order created successfully."
+          },
+          "400": {
+            "description": "Invalid input data."
+          }
+        }
+      }
+    },
+    "/orders/{id}": {
+      "get": {
+        "description": "Retrieve details of an order by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the order to retrieve."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order details.",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "404": {
+            "description": "Order not found."
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete an order by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the order to delete."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order deleted successfully."
+          },
+          "404": {
+            "description": "Order not found."
+          }
+        }
+      }
+    },
+    "/spare-parts/": {
+      "get": {
+        "description": "Retrieve a list of all spare parts.",
+        "responses": {
+          "200": {
+            "description": "A list of spare parts.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/SparePart"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new spare part.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "sparePart",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SparePart"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Spare part created successfully."
+          },
+          "400": {
+            "description": "Invalid input data."
+          }
+        }
+      }
+    },
+    "/spare-parts/{id}": {
+      "get": {
+        "description": "Retrieve details of a spare part by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the spare part to retrieve."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Spare part details.",
+            "schema": {
+              "$ref": "#/definitions/SparePart"
+            }
+          },
+          "404": {
+            "description": "Spare part not found."
+          }
+        }
+      },
+      "put": {
+        "description": "Update an existing spare part's details.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the spare part to update."
+          },
+          {
+            "in": "body",
+            "name": "sparePart",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SparePart"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Spare part updated successfully."
+          },
+          "400": {
+            "description": "Invalid input data."
+          },
+          "404": {
+            "description": "Spare part not found."
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete a spare part by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the spare part to delete."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Spare part deleted successfully."
+          },
+          "404": {
+            "description": "Spare part not found."
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "User": {
+      "type": "object",
+      "required": [
+        "name",
+        "email"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user."
+        }
+      }
+    },
+    "Car": {
+      "type": "object",
+      "required": [
+        "make",
+        "model",
+        "year",
+        "engineType",
+        "VIN",
+        "category"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the car."
+        },
+        "make": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Make of the car."
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Model of the car."
+        },
+        "year": {
+          "type": "integer",
+          "minimum": 1886,
+          "maximum": 2024,
+          "description": "Year of manufacture."
+        },
+        "engineType": {
+          "type": "string",
+          "enum": [
+            "Petrol",
+            "Diesel",
+            "Electric",
+            "Hybrid"
+          ],
+          "description": "Type of engine in the car."
+        },
+        "VIN": {
+          "type": "string",
+          "minLength": 17,
+          "maxLength": 17,
+          "description": "Vehicle Identification Number."
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "Sedan",
+            "SUV",
+            "Truck",
+            "Coupe",
+            "Hatchback",
+            "Convertible"
+          ],
+          "description": "Category of the car."
+        }
+      }
+    },
+    "Order": {
+      "type": "object",
+      "required": [
+        "userId",
+        "items"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the order."
+        },
+        "userId": {
+          "type": "string",
+          "description": "ID of the user placing the order."
+        },
+        "items": {
+          "type": "array",
+          "description": "List of items in the order.",
+          "items": {
+            "$ref": "#/definitions/SparePart"
+          }
+        }
+      }
+    },
+    "SparePart": {
+      "type": "object",
+      "required": [
+        "name",
+        "description",
+        "price",
+        "stock",
+        "compatibleCars",
+        "category"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the spare part."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the spare part."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the spare part."
+        },
+        "price": {
+          "type": "number",
+          "description": "Price of the spare part."
+        },
+        "stock": {
+          "type": "integer",
+          "description": "Stock quantity available."
+        },
+        "compatibleCars": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Sedan",
+              "SUV",
+              "Truck",
+              "Coupe",
+              "Hatchback",
+              "Convertible"
+            ]
+          },
+          "description": "List of car types compatible with the spare part."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the spare part."
+        }
+      }
+    }
+  }
+}

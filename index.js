@@ -43,6 +43,36 @@ require('./middleware/passport')(passport);  // Import from separate file
 // Route handling
 app.use("/", routes);
 
+app.use((req, res, next) => {
+  const error = new Error("Route not found");
+  error.status = 404;
+  next(error);  // Pass the error to the error handler
+});
+
+// Error handling middleware
+app.use(async (err, req, res, next) => {
+  const defaultMessages = {
+    400: "Bad Request. Please check your input and try again.",
+    401: "Unauthorized access. Please log in to proceed.",
+    403: "Forbidden. You don't have permission to access this resource.",
+    404: "The resource you're looking for does not exist.",
+    500: "Oops! Something went wrong on our end. Please try again later.",
+    422: "Unprocessable Entity. The request cannot be processed due to semantic errors."
+  };
+
+  const status = err.status || 500;  // Default to 500 if no status is set
+  const message = defaultMessages[status] || "An unexpected error occurred. Please try again later.";
+  
+  console.error(`Error at: "${req.originalUrl}": ${err.message}`);
+  
+  // Send JSON response with appropriate status and message
+  res.status(status).json({
+    status: status,
+    message: message,
+    error: err.message || "Unknown error"
+  });
+});
+
 // Start the database and server
 mongodb.initDb((err, db) => {
   if (err) {

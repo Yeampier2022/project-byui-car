@@ -26,8 +26,25 @@ const carSchema = {
   additionalProperties: false,
 };
 
+const carUpdateSchema = {
+  type: "object",
+  properties: {
+    make: { type: "string", minLength: 1 },
+    model: { type: "string", minLength: 1 },
+    year: { type: "integer", minimum: 1886, maximum: new Date().getFullYear() },
+    engineType: { type: "string", enum: ["Petrol", "Diesel", "Electric", "Hybrid"] },
+    VIN: { type: "string", minLength: 17, maxLength: 17 },
+    category: {
+      type: "string",
+      enum: ["Sedan", "SUV", "Truck", "Coupe", "Hatchback", "Convertible"],
+    },
+  },
+  additionalProperties: false,
+};
+
 // Compile the schema for validation
 const validateCar = ajv.compile(carSchema);
+const validateUpdateCar = ajv.compile(carUpdateSchema);
 
 const collectionName = "cars";
 
@@ -38,7 +55,22 @@ const validate = (carData) => {
     const errors = validateCar.errors
       .map((err) => `${err.instancePath} ${err.message}`)
       .join(", ");
-    throw new Error(`Validation failed: ${errors}`);
+    const error = new Error(`Validation failed: ${errors}`);
+    error.status = 422;  // Unprocessable Entity
+    throw error;
+  }
+};
+
+// Validate the update car data
+const updateValidate = (carData) => {
+  const valid = validateUpdateCar(carData);
+  if (!valid) {
+    const errors = validateUpdateCar.errors
+      .map((err) => `${err.instancePath} ${err.message}`)
+      .join(", ");
+    const error = new Error(`Validation update failed: ${errors}`);
+    error.status = 422;  // Unprocessable Entity
+    throw error;
   }
 };
 
@@ -50,7 +82,9 @@ const getCars = async () => {
 const getCarById = async (id) => {
   const db = mongodb.getDb();
   if (!ObjectId.isValid(id)) {
-    throw new Error("Invalid ID format");
+    const error = new Error("Invalid ID format");
+    error.status = 400;  // Bad Request
+    throw error;
   }
   return db.collection(collectionName).findOne({ _id: new ObjectId(id) });
 };
@@ -62,8 +96,31 @@ const createCar = async (carData) => {
   return result.insertedId;
 };
 
+const updateCarById = async (carId, carData) => {
+  updateValidate(carData);
+  const db = mongodb.getDb();
+  const result = await db.collection(collectionName).updateOne(
+    { _id: new ObjectId(carId) },
+    { $set: carData }
+  );
+  return result.matchedCount > 0;
+};
+
+const deleteCarById = async (carId) => {
+  const db = mongodb.getDb();
+  if (!ObjectId.isValid(carId)) {
+    const error = new Error("Invalid ID format");
+    error.status = 400;  // Bad Request
+    throw error;
+  }
+  const result = await db.collection(collectionName).deleteOne({ _id: new ObjectId(carId) });
+  return result.deletedCount > 0;
+};
+
 module.exports = {
   getCars,
   getCarById,
   createCar,
+  updateCarById,
+  deleteCarById
 };

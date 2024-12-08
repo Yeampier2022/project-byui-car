@@ -1,61 +1,63 @@
 const carModel = require("../models/carModel");
 
-const getCars = async (req, res) => {
+const getCars = async (req, res, next) => {
   try {
     const cars = await carModel.getCars();
     res.status(200).json(cars);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Failed to fetch cars" });
+    next(error);  // Pass error to the global error handler
   }
 };
 
-const getCarById = async (req, res) => {
+const getCarById = async (req, res, next) => {
   try {
     const car = await carModel.getCarById(req.params.id);
     if (!car) {
-      return res.status(404).json({ message: "Car not found" });
+      const error = new Error("Car not found");
+      error.status = 404;
+      return next(error);  // Pass error to the global error handler
     }
     res.status(200).json(car);
   } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: error.message });
+    next(error);  // Pass error to the global error handler
   }
 };
 
-const createCar = async (req, res) => {
+const createCar = async (req, res, next) => {
   try {
+    req.body.ownerId = req.session.user._id;
     const carId = await carModel.createCar(req.body);
     res.status(201).json({ message: "Car created", carId });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Failed to create car" });
+    next(error);  // Pass error to the global error handler
   }
 };
 
-const updateCarById = async (req, res) => {
+const updateCarById = async (req, res, next) => {
   try {
     const success = await carModel.updateCarById(req.params.id, req.body);
     if (!success) {
-      return res.status(404).json({ message: "Car not found" });
+      const error = new Error("Car not found");
+      error.status = 404;
+      return next(error);  // Pass error to the global error handler
     }
     res.status(200).json({ message: "Car updated" });
   } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: error.message });
+    next(error);  // Pass error to the global error handler
   }
 };
 
-const deleteCarById = async (req, res) => {
+const deleteCarById = async (req, res, next) => {
   try {
     const success = await carModel.deleteCarById(req.params.id);
     if (!success) {
-      return res.status(404).json({ message: "Car not found" });
+      const error = new Error("Car not found");
+      error.status = 404;
+      return next(error);  // Pass error to the global error handler
     }
     res.status(200).json({ message: "Car deleted" });
   } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: error.message });
+    next(error);  // Pass error to the global error handler
   }
 };
 
