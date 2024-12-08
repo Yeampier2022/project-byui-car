@@ -5,7 +5,7 @@
     "description": "API for managing users, cars, orders, and other resources for a web application.",
     "version": "1.0.0"
   },
-  "host": "project-byui-car.onrender.com",
+  "host": "project-byui-cars.onrender.com",
   "basePath": "/",
   "schemes": [
     "https"
