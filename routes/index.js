@@ -7,7 +7,7 @@ const routes = require("express").Router();
 routes.use("/users", require("./users"));
 routes.use("/cars", require("./cars"));
 routes.use("/orders", require("./orders"));
-routes.use("/spare-parts", require("./squardPart"));
+routes.use("/spare-parts", require("./sparePart"));
 routes.use("/api-docs", require("./swagger"))
 
 // Example home route

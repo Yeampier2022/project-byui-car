@@ -1,40 +1,40 @@
 const squardPart = require('../models/partModel');
 
-const getSquardParts = async (req, res, next) => {
+const getSpareParts = async (req, res, next) => {
     try {
-        const squardParts = await squardPart.getSpareParts();
-        res.status(200).json(squardParts);
+        const spareParts = await sparePart.getSpareParts();
+        res.status(200).json(spareParts);
     } catch (error) {
         next(error);  // Pass error to the global error handler
     }
 };
 
-const getSquardPartById = async (req, res, next) => {
+const getSparePartById = async (req, res, next) => {
     try {
-        const squardParts = await squardPart.getSparePartById(req.params.id);
-        if (!squardParts) {
+        const spareParts = await sparePart.getSparePartById(req.params.id);
+        if (!spareParts) {
             const error = new Error("Spare Part not found");
             error.status = 404;
             return next(error);  // Pass error to the global error handler
         }
-        res.status(200).json(squardParts);
+        res.status(200).json(spareParts);
     } catch (error) {
         next(error);  // Pass error to the global error handler
     }
 };
 
-const createSquardPart = async (req, res, next) => {
+const createSparePart = async (req, res, next) => {
     try {
-        const squardPartId = await squardPart.createSparePart(req.body);
+        const sparePartId = await sparePart.createSparePart(req.body);
         res.status(201).json({ message: "Spare Part created", squardPartId });
     } catch (error) {
         next(error);  // Pass error to the global error handler
     }
 };
 
-const updateSquardPartById = async (req, res, next) => {
+const updateSparePartById = async (req, res, next) => {
     try {
-        const success = await squardPart.updateSparePartById(req.params.id, req.body);
+        const success = await sparePart.updateSparePartById(req.params.id, req.body);
         if (!success) {
             const error = new Error("Spare Part not found");
             error.status = 404;
@@ -46,9 +46,9 @@ const updateSquardPartById = async (req, res, next) => {
     }
 };
 
-const deleteSquardPartById = async (req, res, next) => {
+const deleteSparePartById = async (req, res, next) => {
     try {
-        const success = await squardPart.deleteSparePartById(req.params.id);
+        const success = await sparePart.deleteSparePartById(req.params.id);
         if (!success) {
             const error = new Error("Spare Part not found");
             error.status = 404;
@@ -61,9 +61,9 @@ const deleteSquardPartById = async (req, res, next) => {
 };
 
 module.exports = {
-    getSquardParts,
-    getSquardPartById,
-    createSquardPart,
-    updateSquardPartById,
-    deleteSquardPartById
+    getSpareParts,
+    getSparePartById,
+    createSparePart,
+    updateSparePartById,
+    deleteSparePartById
 };
