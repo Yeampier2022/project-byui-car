@@ -1,26 +1,38 @@
 const express = require("express");
 const carsController = require("../controllers/cars");
 const { carValidation, carUpdateValidation, validateResults } = require("../middleware/validateCar");
+const { isAuthenticated, authorizeCarOwnership, authorizeRole } = require("../middleware/utilities");
 
 const router = express.Router();
 
-router.get("/", carsController.getCars);
+// Route to get a list of cars
+router.get("/", isAuthenticated, carsController.getCars);
 
-router.get("/:id", carsController.getCarById);
+// Route to get a single car by ID (any logged-in user can access)
+router.get("/:id", isAuthenticated, carsController.getCarById);
 
+// Route to create a car (any logged-in user can create)
 router.post("/", 
-  carValidation,            // Validation middleware for creating a car
-  validateResults(),          // Middleware to check validation results
+  isAuthenticated, 
+  carValidation, 
+  validateResults(), 
   carsController.createCar
 );
 
-// Update an existing car with validation
+// Route to update a car (only the owner or admin can update)
 router.put("/:id", 
-  carUpdateValidation,      // Validation middleware for updating a car
-  validateResults(),          // Middleware to check validation results
+  isAuthenticated, 
+  authorizeCarOwnership, 
+  carUpdateValidation, 
+  validateResults(), 
   carsController.updateCarById
 );
 
-router.delete("/:id", carsController.deleteCarById);
+// Route to delete a car (only the owner or admin can delete)
+router.delete("/:id", 
+  isAuthenticated, 
+  authorizeCarOwnership, 
+  carsController.deleteCarById
+);
 
 module.exports = router;

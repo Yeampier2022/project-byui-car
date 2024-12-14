@@ -2,24 +2,28 @@ const express = require("express");
 const router = express.Router();
 const ordersController = require("../controllers/orders");
 const { orderValidation, orderUpdateValidation, validateResults } = require("../middleware/validateOrder");
+const {
+  isAuthenticated,
+  authorizeRole,
+} = require("../middleware/utilities");
 
-router.get("/", ordersController.getOrders);
-router.get("/:id", ordersController.getOrderById);
-router.post("/", ordersController.createOrder);
+router.get("/",isAuthenticated, authorizeRole("admin", "employee"), ordersController.getOrders);
+router.get("/:id",isAuthenticated, authorizeRole("admin", "employee"), ordersController.getOrderById);
 
-router.post("/", 
-    orderValidation,            // Validation middleware for creating a car
-    validateResults(),          // Middleware to check validation results
-    ordersController.createOrder
-  );
-  
-  // Update an existing car with validation
-  router.put("/:id", 
-    orderUpdateValidation,      // Validation middleware for updating a car
-    validateResults(),          // Middleware to check validation results
-    ordersController.updateOrderById
-  );
-//router.put("/:id", ordersController.updateOrderById);
-router.delete("/:id", ordersController.deleteOrderById);
+router.post("/",
+  isAuthenticated,
+  orderValidation,            // Validation middleware for creating a car
+  validateResults(),          // Middleware to check validation results
+  ordersController.createOrder
+);
+
+router.put("/:id",
+  isAuthenticated,
+  authorizeRole("admin", "employee"),
+  orderUpdateValidation,      // Validation middleware for updating a car
+  validateResults(),          // Middleware to check validation results
+  ordersController.updateOrderById
+);
+router.delete("/:id",isAuthenticated, authorizeRole("admin", "employee"), ordersController.deleteOrderById);
 
 module.exports = router;

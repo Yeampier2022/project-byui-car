@@ -22,8 +22,19 @@ const userSchema = {
   additionalProperties: false,
 };
 
+const userUpdateSchema = {
+  type: "object",
+  properties: {
+    name: { type: "string", minLength: 1 },
+    email: { type: "string", format: "email", nullable: true },
+    role: { type: "string", enum: ["client", "admin", "employee"] },
+  },
+  additionalProperties: false,
+};
+
 // Compile the schema for validation
 const validateUser = ajv.compile(userSchema);
+const validateUpdateUser = ajv.compile(userUpdateSchema);
 
 const collectionName = "users";
 
@@ -32,6 +43,18 @@ const validate = (userData) => {
   const valid = validateUser(userData);
   if (!valid) {
     const errors = validateUser.errors
+      .map((err) => `${err.instancePath} ${err.message}`)
+      .join(", ");
+    const error = new Error(`Validation failed: ${errors}`);
+    error.status = 422; // Unprocessable Entity
+    throw error;
+  }
+};
+
+const validateUpdate = (userData) => {
+  const valid = validateUpdateUser(userData);
+  if (!valid) {
+    const errors = validateUpdateUser.errors
       .map((err) => `${err.instancePath} ${err.message}`)
       .join(", ");
     const error = new Error(`Validation failed: ${errors}`);
@@ -58,6 +81,12 @@ const getUserById = async (id) => {
 
 const getByGithubId = async (id) => {
   const db = mongodb.getDb();
+  if (!/^\d+$/.test(id)) { // Regex checks if the ID consists of only digits
+    const error = new Error("Invalid GitHub ID format");
+    error.status = 400; // Bad Request
+    throw error;
+  }
+
   return db.collection(collectionName).findOne({ githubId: id });
 };
 
@@ -85,7 +114,7 @@ const updateUserById = async (id, userData) => {
     error.status = 400; // Bad Request
     throw error;
   }
-  validate(userData); // Validate data before update
+  validateUpdate(userData); // Validate data before update
   const db = mongodb.getDb();
   const result = await db.collection(collectionName).updateOne(
     { _id: new ObjectId(id) },

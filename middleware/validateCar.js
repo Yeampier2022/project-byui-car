@@ -1,22 +1,23 @@
 const { body, validationResult } = require('express-validator');
-const userModel = require('../models/userModel'); // Assuming userModel contains the logic to fetch user data
+const userModel = require('../models/userModel');
+const Car = require('../models/carModel')
 
 // Car validation for creating a car
 const carValidation = [
   body().custom((value, { req }) => {
     if (Object.keys(req.body).length === 0) {
       const error = new Error('Request body cannot be empty.');
-      error.statusCode = 400;
+      error.status = 400;
       throw error;
     }
 
-    const allowedFields = ['make', 'model', 'year', 'engineType', 'VIN', 'category', 'ownerId'];
+    const allowedFields = ['make', 'model', 'year', 'engineType', 'VIN', 'category'];
     const invalidFields = Object.keys(req.body).filter(
       (key) => !allowedFields.includes(key)
     );
     if (invalidFields.length > 0) {
       const error = new Error(`Invalid fields: ${invalidFields.join(', ')}`);
-      error.statusCode = 400;
+      error.status = 400;
       throw error;
     }
 
@@ -59,15 +60,16 @@ const carValidation = [
       const sessionOwnerId = req.session?.user?._id;
       if (!sessionOwnerId) {
         const error = new Error('User not authenticated.');
-        error.statusCode = 401;
+        error.status = 401;
         throw error;
+        next(error)
       }
 
       // Check if the ownerId from the session exists in the database
       const ownerExists = await userModel.getUserById(sessionOwnerId);
       if (!ownerExists) {
         const error = new Error('Owner with this ID does not exist.');
-        error.statusCode = 404;
+        error.status = 404;
         throw error;
       }
 
@@ -77,10 +79,19 @@ const carValidation = [
 
 // Car validation for updating a car
 const carUpdateValidation = [
-  body().custom((value, { req }) => {
+  body().custom(async (value, { req }) => {
     if (Object.keys(req.body).length === 0) {
       const error = new Error('Request body cannot be empty.');
-      error.statusCode = 400;
+      error.status = 400;
+      throw error;
+    }
+
+    const { id } = req.params;
+    const existingCar = await Car.getCarById(id);
+
+    if (!existingCar) {
+      const error = new Error(`Car with ID ${id} not found.`);
+      error.status = 404;
       throw error;
     }
 
@@ -88,9 +99,33 @@ const carUpdateValidation = [
     const invalidFields = Object.keys(req.body).filter(
       (key) => !allowedFields.includes(key)
     );
+
     if (invalidFields.length > 0) {
       const error = new Error(`Invalid fields: ${invalidFields.join(', ')}`);
-      error.statusCode = 400;
+      error.status = 400;
+      throw error;
+    }
+
+    const filteredExistingCar = Object.entries(existingCar.toObject())
+      .filter(([key]) => allowedFields.includes(key))
+      .reduce((acc, [key, value]) => {
+        acc[key] = value;
+        return acc;
+      }, {});
+
+    const filteredRequestBody = Object.entries(req.body)
+      .filter(([key]) => allowedFields.includes(key))
+      .reduce((acc, [key, value]) => {
+        acc[key] = value;
+        return acc;
+      }, {});
+
+    const isIdentical = Object.keys(filteredRequestBody).every(
+      (key) => filteredRequestBody[key] === filteredExistingCar[key],
+    );
+
+    if (isIdentical) {
+      const error = new Error('No changes detected. Update request ignored.');
       throw error;
     }
 
@@ -139,7 +174,7 @@ const validateResults = () => (req, res, next) => {
   const errorMessage = extractedErrors.map((e) => e.message).join(', ');
 
   const error = new Error(errorMessage);
-  error.statusCode = 422;
+  error.status = 422;
   return next(error);
 };
 

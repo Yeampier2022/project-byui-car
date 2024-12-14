@@ -242,29 +242,269 @@
           }
         }
       }
+    },
+    "/orders/": {
+      "get": {
+        "description": "Retrieve a list of all orders.",
+        "responses": {
+          "200": {
+            "description": "A list of orders.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Order"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new order.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "order",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Order created successfully."
+          },
+          "400": {
+            "description": "Invalid input data."
+          }
+        }
+      }
+    },
+    "/orders/{id}": {
+      "get": {
+        "description": "Retrieve details of an order by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the order to retrieve."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order details.",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "404": {
+            "description": "Order not found."
+          }
+        }
+      },
+      "put": {
+        "description": "Update an existing order's details.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the order to update."
+          },
+          {
+            "in": "body",
+            "name": "order",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order updated successfully."
+          },
+          "400": {
+            "description": "Invalid input data."
+          },
+          "404": {
+            "description": "Order not found."
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete an order by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the order to delete."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order deleted successfully."
+          },
+          "404": {
+            "description": "Order not found."
+          }
+        }
+      }
+    },
+    "/users/": {
+      "get": {
+        "description": "Retrieve a list of all users.",
+        "responses": {
+          "200": {
+            "description": "A list of users.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "description": "Retrieve details of a user by their ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the user to retrieve."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details.",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Invalid user ID provided."
+          },
+          "404": {
+            "description": "User not found."
+          }
+        }
+      },
+      "put": {
+        "description": "Update an existing user's details.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the user to update."
+          },
+          {
+            "in": "body",
+            "name": "user",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User updated successfully."
+          },
+          "400": {
+            "description": "Invalid input data."
+          },
+          "404": {
+            "description": "User not found."
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete a user by their ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the user to delete."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deleted successfully."
+          },
+          "404": {
+            "description": "User not found."
+          }
+        }
+      }
     }
   },
   "definitions": {
     "User": {
       "type": "object",
-      "required": [
-        "name",
-        "email"
-      ],
       "properties": {
-        "id": {
+        "_id": {
           "type": "string",
           "description": "Unique identifier for the user."
         },
         "name": {
           "type": "string",
-          "description": "Name of the user."
+          "description": "Name of the user.",
+          "minLength": 1
         },
         "email": {
           "type": "string",
-          "description": "Email address of the user."
+          "description": "Email address of the user.",
+          "format": "email",
+          "nullable": true
+        },
+        "role": {
+          "type": "string",
+          "description": "Role of the user.",
+          "enum": [
+            "client",
+            "admin",
+            "employee"
+          ]
+        },
+        "githubId": {
+          "type": "string",
+          "description": "GitHub ID of the user.",
+          "pattern": "^[0-9]+$",
+          "maxLength": 10
+        },
+        "avatarUrl": {
+          "type": "string",
+          "description": "Avatar URL of the user.",
+          "format": "uri",
+          "nullable": true
+        },
+        "registeredDate": {
+          "type": "string",
+          "description": "Date when the user registered.",
+          "format": "date-time"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "Car": {
       "type": "object",
@@ -277,7 +517,7 @@
         "category"
       ],
       "properties": {
-        "id": {
+        "_id": {
           "type": "string",
           "description": "Unique identifier for the car."
         },
@@ -331,10 +571,11 @@
       "type": "object",
       "required": [
         "userId",
-        "items"
+        "items",
+        "status"
       ],
       "properties": {
-        "id": {
+        "_id": {
           "type": "string",
           "description": "Unique identifier for the order."
         },
@@ -344,12 +585,42 @@
         },
         "items": {
           "type": "array",
-          "description": "List of items in the order.",
+          "description": "Array of items in the order, each containing a partId and quantity.",
           "items": {
-            "$ref": "#/definitions/SparePart"
+            "type": "object",
+            "required": [
+              "partId",
+              "quantity"
+            ],
+            "properties": {
+              "partId": {
+                "type": "string",
+                "description": "ID of the part being ordered."
+              },
+              "quantity": {
+                "type": "integer",
+                "description": "Quantity of the part being ordered.",
+                "minimum": 1
+              }
+            }
           }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Pending",
+            "Shipped",
+            "Completed"
+          ],
+          "description": "Status of the order."
+        },
+        "orderDate": {
+          "type": "string",
+          "description": "Date when the order was placed.",
+          "format": "date-time"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "SparePart": {
       "type": "object",
@@ -362,7 +633,7 @@
         "category"
       ],
       "properties": {
-        "id": {
+        "_id": {
           "type": "string",
           "description": "Unique identifier for the spare part."
         },
