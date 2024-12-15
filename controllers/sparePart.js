@@ -1,4 +1,4 @@
-const squardPart = require('../models/partModel');
+const sparePart = require('../models/partModel');
 
 const getSpareParts = async (req, res, next) => {
     try {
@@ -26,7 +26,7 @@ const getSparePartById = async (req, res, next) => {
 const createSparePart = async (req, res, next) => {
     try {
         const sparePartId = await sparePart.createSparePart(req.body);
-        res.status(201).json({ message: "Spare Part created", squardPartId });
+        res.status(201).json({ message: "Spare Part created", sparePartId });
     } catch (error) {
         next(error);  // Pass error to the global error handler
     }

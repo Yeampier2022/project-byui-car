@@ -89,11 +89,27 @@ const getSpareParts = async () => {
 const getSparePartById = async (partId) => {
   const db = mongodb.getDb();
   if (!ObjectId.isValid(partId)) {
-    const error = new Error("Invalid ID format");
-    error.status = 400;  // Bad Request
-    throw error;
+    return null
   }
-  return db.collection(collectionName).findOne({ _id: new ObjectId(partId) });
+  let part = await db.collection(collectionName).findOne({ _id: new ObjectId(partId) });
+  return part
+};
+
+const getSparePartsByIds = async (partIds) => {
+  const db = mongodb.getDb();
+  const validPartIds = partIds.filter((id) => ObjectId.isValid(id));
+
+  if (validPartIds.length === 0) {
+    return false;
+  }
+
+  const existingParts = await db
+    .collection(collectionName)
+    .find({ _id: { $in: validPartIds.map((id) => new ObjectId(id)) } })
+    .toArray();
+
+  // Ensure the number of valid parts matches the number of valid partIds
+  return existingParts.length === validPartIds.length;
 };
 
 const createSparePart = async (sparePartData) => {
@@ -139,5 +155,6 @@ module.exports = {
   getSparePartById,
   createSparePart,
   updateSparePartById,
-  deleteSparePartById
+  deleteSparePartById,
+  getSparePartsByIds
 };

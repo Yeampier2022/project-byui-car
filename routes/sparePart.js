@@ -1,25 +1,40 @@
 const express = require("express");
 const sparePartController = require("../controllers/sparePart");
 const { sparePartValidation, sparePartUpdateValidation, validateResults } = require("../middleware/validateSparePart");
+const { authorizeRole, isAuthenticated } = require("../middleware/utilities");
 
 const router = express.Router();
 
-router.get("/", sparePartController.getSpareParts);
+// Allow everyone to view spare parts
+router.get("/", isAuthenticated, sparePartController.getSpareParts);
+router.get("/:id", isAuthenticated, sparePartController.getSparePartById);
 
-router.get("/:id", sparePartController.getSparePartById);
-
-router.post("/", 
-  sparePartValidation,       // Validation middleware for creating spare part
-  validateResults(),           // Middleware to check validation results
-  sparePartController.createSparePart 
+// Restrict creating spare parts to admin and employee roles
+router.post(
+  "/",
+  isAuthenticated, 
+  authorizeRole("admin", "employee"), // Restrict to admins and employees
+  sparePartValidation,
+  validateResults(),
+  sparePartController.createSparePart
 );
 
-router.put("/:id", 
-  sparePartUpdateValidation, // Validation middleware for updating spare part
-  validateResults(),           // Middleware to check validation results
-  sparePartController.updateSparePartById 
+// Restrict updating spare parts to admin and employee roles
+router.put(
+  "/:id",
+  isAuthenticated,
+  authorizeRole("admin", "employee"), // Restrict to admins and employees
+  sparePartUpdateValidation,
+  validateResults(),
+  sparePartController.updateSparePartById
 );
 
-router.delete("/:id", sparePartController.deleteSparePartById);
+// Restrict deleting spare parts to admin and employee roles
+router.delete(
+  "/:id",
+  isAuthenticated,
+  authorizeRole("admin", "employee"), // Restrict to admins and employees
+  sparePartController.deleteSparePartById
+);
 
 module.exports = router;
