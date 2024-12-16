@@ -53,6 +53,7 @@ const validateSparePart = ajv.compile(sparePartSchema);
 const validateUpdateSparePart = ajv.compile(sparePartUpdateSchema);
 
 const collectionName = "spare_parts";
+const modelName = "Spare part";
 
 // Validation function
 const validate = (sparePartData) => {
@@ -156,5 +157,6 @@ module.exports = {
   createSparePart,
   updateSparePartById,
   deleteSparePartById,
-  getSparePartsByIds
+  getSparePartsByIds,
+  modelName
 };

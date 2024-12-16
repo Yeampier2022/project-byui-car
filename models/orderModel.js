@@ -59,6 +59,7 @@ const validateOrder = ajv.compile(orderSchema);
 const validateUpdateOrder = ajv.compile(orderUpdateSchema);
 
 const collectionName = "orders";
+const modelName = "Order";
 
 // Validation function for orders
 const validate = (orderData) => {
@@ -176,4 +177,5 @@ module.exports = {
   createOrder,
   updateOrderById,
   deleteOrderById,
+  modelName
 };

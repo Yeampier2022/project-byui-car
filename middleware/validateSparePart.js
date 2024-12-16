@@ -1,23 +1,14 @@
 const { body, validationResult } = require('express-validator');
-const Part = require('../models/partModel');
+const allowedFields = ['name', 'description', 'price', 'stock', 'compatibleCars', 'category'];
 
 // Spare Part validation for creating a spare part
 const sparePartValidation = [
-  body().custom((value, { req }) => {
-    if (Object.keys(req.body).length === 0) {
-      const error = new Error('Request body cannot be empty.');
-      error.status = 400;
-      throw error;
-    }
-
-    const allowedFields = ['name', 'description', 'price', 'stock', 'compatibleCars', 'category'];
-
+  body().custom((value, { req, next }) => {
     const invalidFields = Object.keys(req.body).filter(
       (key) => !allowedFields.includes(key)
     );
     if (invalidFields.length > 0) {
       const error = new Error(`Invalid fields: ${invalidFields.join(', ')}`);
-      error.status = 400;
       throw error;
     }
 
@@ -71,59 +62,17 @@ const sparePartValidation = [
 
 // Spare Part validation for updating a spare part
 const sparePartUpdateValidation = [
-  body().custom(async(value, { req }) => {
-    if (Object.keys(req.body).length === 0) {
-      const error = new Error('Request body cannot be empty.');
-      error.status = 400;
-      next(error)
-    }
-
-    const allowedFields = ['name', 'description', 'price', 'stock', 'compatibleCars', 'category'];
-
+  body().custom((value, { req, next }) => {
     const invalidFields = Object.keys(req.body).filter(
       (key) => !allowedFields.includes(key)
     );
     if (invalidFields.length > 0) {
       const error = new Error(`Invalid fields: ${invalidFields.join(', ')}`);
-      error.status = 400;
-      next(error)
-    }
-
-    const { id } = req.params;
-    const existingSparePart = await Part.getSparePartById(id);
-
-    if (!existingSparePart) {
-      const error = new Error(`Spare part with ID ${id} not found.`);
-      error.status = 404;
-      next(error)
-    }
-
-    const filteredExistingPart = Object.entries(existingSparePart.toObject())
-      .filter(([key]) => allowedFields.includes(key))
-      .reduce((acc, [key, value]) => {
-        acc[key] = value;
-        return acc;
-      }, {});
-
-    const filteredRequestBody = Object.entries(req.body)
-      .filter(([key]) => allowedFields.includes(key))
-      .reduce((acc, [key, value]) => {
-        acc[key] = value;
-        return acc;
-      }, {});
-
-    const isIdentical = Object.keys(filteredRequestBody).every(
-      (key) => filteredRequestBody[key] === filteredExistingPart[key],
-    );
-
-    if (isIdentical) {
-      const error = new Error('No changes detected. Update request ignored.');
       throw error;
     }
 
     return true;
   }),
-
   body('name')
     .optional()
     .isString()

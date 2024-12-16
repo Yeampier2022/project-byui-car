@@ -47,6 +47,7 @@ const validateCar = ajv.compile(carSchema);
 const validateUpdateCar = ajv.compile(carUpdateSchema);
 
 const collectionName = "cars";
+const modelName = "Car";
 
 // Validate the car data
 const validate = (carData) => {
@@ -122,5 +123,6 @@ module.exports = {
   getCarById,
   createCar,
   updateCarById,
-  deleteCarById
+  deleteCarById,
+  modelName
 };

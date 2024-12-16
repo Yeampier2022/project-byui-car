@@ -27,7 +27,7 @@ const createOrder = async (req, res, next) => {
     try {
         req.body.userId = req.session.user._id;
         const orderId = await ordersModel.createOrder(req.body);
-        res.status(201).json({ message: 'Order created', orderId });
+        res.status(201).json({ message: 'Order created', id: orderId });
     } catch (error) {
         next(error);
     }
