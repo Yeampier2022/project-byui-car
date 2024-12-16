@@ -27,7 +27,7 @@ const createCar = async (req, res, next) => {
   try {
     req.body.ownerId = req.session.user._id;
     const carId = await carModel.createCar(req.body);
-    res.status(201).json({ message: "Car created", carId });
+    res.status(201).json({ message: "Car created", id: carId });
   } catch (error) {
     next(error);  // Pass error to the global error handler
   }

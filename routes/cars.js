@@ -1,7 +1,10 @@
 const express = require("express");
 const carsController = require("../controllers/cars");
 const { carValidation, carUpdateValidation, validateResults } = require("../middleware/validateCar");
-const { isAuthenticated, authorizeCarOwnership, authorizeRole } = require("../middleware/utilities");
+const { isAuthenticated, authorizeCarOwnership } = require("../middleware/utilities");
+const { checkEmptyBody, checkEntityExists, checkForIdenticalData } = require('../middleware/validateRequest');
+const Car = require('../models/carModel');
+const allowedFields = ['make', 'model', 'year', 'engineType', 'VIN', 'category'];
 
 const router = express.Router();
 
@@ -14,6 +17,7 @@ router.get("/:id", isAuthenticated, carsController.getCarById);
 // Route to create a car (any logged-in user can create)
 router.post("/", 
   isAuthenticated, 
+  checkEmptyBody,
   carValidation, 
   validateResults(), 
   carsController.createCar
@@ -23,6 +27,9 @@ router.post("/",
 router.put("/:id", 
   isAuthenticated, 
   authorizeCarOwnership, 
+  checkEmptyBody,
+  checkEntityExists(Car, 'getCarById'),
+  checkForIdenticalData(allowedFields),
   carUpdateValidation, 
   validateResults(), 
   carsController.updateCarById

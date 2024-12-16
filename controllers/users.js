@@ -26,7 +26,7 @@ const getUserById = async (req, res, next) => {
 const createUser = async (req, res, next) => {
   try {
     const userId = await userModel.createUser(req.body);
-    res.status(201).json({ message: "User created", userId });
+    res.status(201).json({ message: "User created", id: userId });
   } catch (error) {
     next(error);  // Pass error to the global error handler
   }

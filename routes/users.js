@@ -10,6 +10,9 @@ const {
   restrictRoleUpdate,
   authorizeRoleOrOwnership,
 } = require("../middleware/utilities");
+const { checkEmptyBody, checkEntityExists, checkForIdenticalData } = require('../middleware/validateRequest');
+const User = require('../models/userModel');
+const allowedFields = ['name', 'email', 'role'];
 
 const router = express.Router();
 
@@ -21,20 +24,23 @@ router.get(
   userController.getUsers
 );
 
-router.get("/:id", 
-  isAuthenticated, 
+router.get("/:id",
+  isAuthenticated,
   authorizeRole("admin", "employee"),
-  userController.getUserById, 
+  userController.getUserById,
 );
 
 router.put(
   "/:id",
-  isAuthenticated, 
+  isAuthenticated,
   restrictRoleUpdate(),         // Restrict role updates to admins        
   authorizeRoleOrOwnership("admin"),
+  checkEmptyBody,
+  checkEntityExists(User, 'getUserById'),
+  checkForIdenticalData(allowedFields),
   userUpdateValidation,
-  validateResults(),   
-  userController.updateUserById 
+  validateResults(),
+  userController.updateUserById
 );
 
 router.delete(

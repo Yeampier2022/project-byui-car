@@ -37,6 +37,7 @@ const validateUser = ajv.compile(userSchema);
 const validateUpdateUser = ajv.compile(userUpdateSchema);
 
 const collectionName = "users";
+const modelName = "User";
 
 // Validate the user data
 const validate = (userData) => {
@@ -151,4 +152,5 @@ module.exports = {
   createUser,
   updateUserById,
   deleteUserById,
+  modelName
 };

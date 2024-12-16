@@ -1,23 +1,14 @@
 const { body, validationResult } = require('express-validator');
-const userModel = require('../models/userModel');
-const Car = require('../models/carModel')
+const allowedFields = ['make', 'model', 'year', 'engineType', 'VIN', 'category'];
 
 // Car validation for creating a car
 const carValidation = [
   body().custom((value, { req }) => {
-    if (Object.keys(req.body).length === 0) {
-      const error = new Error('Request body cannot be empty.');
-      error.status = 400;
-      throw error;
-    }
-
-    const allowedFields = ['make', 'model', 'year', 'engineType', 'VIN', 'category'];
     const invalidFields = Object.keys(req.body).filter(
       (key) => !allowedFields.includes(key)
     );
     if (invalidFields.length > 0) {
       const error = new Error(`Invalid fields: ${invalidFields.join(', ')}`);
-      error.status = 400;
       throw error;
     }
 
@@ -53,82 +44,20 @@ const carValidation = [
   body('category')
     .isIn(['Sedan', 'SUV', 'Truck', 'Coupe', 'Hatchback', 'Convertible'])
     .withMessage('Category must be one of: Sedan, SUV, Truck, Coupe, Hatchback, Convertible.'),
-
-  body('ownerId')
-    .custom(async (ownerId, { req }) => {
-      // Retrieve the owner ID from the session
-      const sessionOwnerId = req.session?.user?._id;
-      if (!sessionOwnerId) {
-        const error = new Error('User not authenticated.');
-        error.status = 401;
-        throw error;
-        next(error)
-      }
-
-      // Check if the ownerId from the session exists in the database
-      const ownerExists = await userModel.getUserById(sessionOwnerId);
-      if (!ownerExists) {
-        const error = new Error('Owner with this ID does not exist.');
-        error.status = 404;
-        throw error;
-      }
-
-      return true;
-    }),
 ];
 
 // Car validation for updating a car
 const carUpdateValidation = [
   body().custom(async (value, { req }) => {
-    if (Object.keys(req.body).length === 0) {
-      const error = new Error('Request body cannot be empty.');
-      error.status = 400;
-      throw error;
-    }
-
-    const { id } = req.params;
-    const existingCar = await Car.getCarById(id);
-
-    if (!existingCar) {
-      const error = new Error(`Car with ID ${id} not found.`);
-      error.status = 404;
-      throw error;
-    }
-
-    const allowedFields = ['make', 'model', 'year', 'engineType', 'VIN', 'category'];
     const invalidFields = Object.keys(req.body).filter(
       (key) => !allowedFields.includes(key)
     );
 
     if (invalidFields.length > 0) {
       const error = new Error(`Invalid fields: ${invalidFields.join(', ')}`);
-      error.status = 400;
       throw error;
     }
-
-    const filteredExistingCar = Object.entries(existingCar.toObject())
-      .filter(([key]) => allowedFields.includes(key))
-      .reduce((acc, [key, value]) => {
-        acc[key] = value;
-        return acc;
-      }, {});
-
-    const filteredRequestBody = Object.entries(req.body)
-      .filter(([key]) => allowedFields.includes(key))
-      .reduce((acc, [key, value]) => {
-        acc[key] = value;
-        return acc;
-      }, {});
-
-    const isIdentical = Object.keys(filteredRequestBody).every(
-      (key) => filteredRequestBody[key] === filteredExistingCar[key],
-    );
-
-    if (isIdentical) {
-      const error = new Error('No changes detected. Update request ignored.');
-      throw error;
-    }
-
+    
     return true;
   }),
 

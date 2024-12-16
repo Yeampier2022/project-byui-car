@@ -62,4 +62,11 @@ routes.get("/logout", (req, res) => {
   });
 });
 
+if (process.env.NODE_ENV === 'test') {
+  routes.post("/test-login", (req, res) => {
+      req.session.user = req.body; // Set user session data from request body
+      res.status(200).send("Session set for testing");
+  });
+}
+
 module.exports = routes;
