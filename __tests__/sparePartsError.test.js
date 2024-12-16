@@ -9,10 +9,10 @@ describe("Spare Parts Routes - Error Scenarios", () => {
   beforeAll(async () => {
     // Connect to the database
     await connectToDatabase();
-    
+
     // Start the server and store the server instance
     server = await startServer();
-    
+
     // Use agent for maintaining sessions
     agent = request.agent(app);
   });

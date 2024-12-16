@@ -9,10 +9,10 @@ describe("Spare Parts Validation Errors", () => {
     beforeAll(async () => {
         // Connect to the database
         await connectToDatabase();
-        
+
         // Start the server and store the server instance
         server = await startServer();
-        
+
         // Use agent for maintaining sessions
         agent = request.agent(app);
 
@@ -39,7 +39,7 @@ describe("Spare Parts Validation Errors", () => {
         const response = await agent
             .post("/spare-parts")
             .send(newSparePart);
-        
+
         expect(response.status).toBe(422);
         expect(response.body.error).toContain("Name is required.");
     });
@@ -57,7 +57,7 @@ describe("Spare Parts Validation Errors", () => {
         const response = await agent
             .post("/spare-parts")
             .send(newSparePart);
-        
+
         expect(response.status).toBe(422);
         expect(response.body.error).toContain("Price must be a non-negative number.");
     });
@@ -75,7 +75,7 @@ describe("Spare Parts Validation Errors", () => {
         const response = await agent
             .post("/spare-parts")
             .send(newSparePart);
-        
+
         expect(response.status).toBe(422);
         expect(response.body.error).toContain("Compatible cars must be one of: Sedan, SUV, Truck, Coupe, Hatchback, Convertible.");
     });
@@ -92,7 +92,7 @@ describe("Spare Parts Validation Errors", () => {
         const response = await agent
             .post("/spare-parts")
             .send(newSparePart);
-        
+
         expect(response.status).toBe(422);
         expect(response.body.error).toContain("Category is required.");
     });
@@ -111,7 +111,7 @@ describe("Spare Parts Validation Errors", () => {
         const response = await agent
             .post("/spare-parts")
             .send(newSparePart);
-        
+
         expect(response.status).toBe(422);
         expect(response.body.error).toContain("Invalid fields: ");
     });
@@ -120,7 +120,7 @@ describe("Spare Parts Validation Errors", () => {
         const response = await agent
             .post("/spare-parts")
             .send({}); // Empty body
-        
+
         expect(response.status).toBe(400);
         expect(response.body.error).toContain("Request body cannot be empty.");
     });
@@ -129,7 +129,7 @@ describe("Spare Parts Validation Errors", () => {
     it("should return validation error when no fields are provided for update", async () => {
         const response = await agent
             .put(`/spare-parts/675526a65147b661d631771f`) // Existing part ID
-            .send({name : 'Brake Pads'});
+            .send({ name: 'Brake Pads' });
 
         expect(response.status).toBe(400);
         expect(response.body.error).toContain("No changes detected. Update request ignored.");
@@ -143,7 +143,7 @@ describe("Spare Parts Validation Errors", () => {
         const response = await agent
             .put(`/spare-parts/675526a65147b661d631779f`) // Non-existent part ID
             .send(updatedSparePart);
-        
+
         expect(response.status).toBe(404);
         expect(response.body.error).toContain("Spare part with ID 675526a65147b661d631779f not found.");
     });
